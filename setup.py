@@ -3,7 +3,7 @@
 """
 huffman
 ===================
-A Telegram bot
+A file compactor
 """
 from setuptools import setup, find_packages
 
@@ -17,21 +17,21 @@ install_requires = [
 
 setup(
     name="huffman",
-    version='0.1.0',
+    version='0.0.8',
     author='Luiz Oliveira',
     author_email='ziuloliveira@gmail.com',
     url='https://gitlab.com/Ziul/huffman/',
     entry_points={
         'console_scripts': [
-            'huffman = main:main',
+            'huffman = huffman:main',
             # 'main-test = main:test',
         ]},
     description='A program to compact/descompact a file',
     long_description=__doc__,
     license='GPLv3',
-    package_dir={'.': 'src'},
+    package_dir={'': 'src'},
     packages=find_packages('src'),
-    zip_safe=True,
+    zip_safe=False,
     test_suite="tests.run.runtests",
     install_requires=install_requires,
     include_package_data=True,

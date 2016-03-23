@@ -4,9 +4,11 @@ import optparse
 _parser = optparse.OptionParser(
     usage="""%prog [OPTIONS]
 Examples:
+
 Encode the file abc.txt:
     ~ $ huffman -f abc.txt -e
     ~ $ huffman -f abc.txt
+
 Decode the file abc.txt into `teste.txt`:
     ~ $ huffman -f abc.txt -d
     ~ $ huffman -f abc.txt --decode
