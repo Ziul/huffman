@@ -1,10 +1,19 @@
+# -*- coding: utf-8 -*-
+
+"""
+Huffman algorithm.
+
+Used to encode/decode files, as
+create table from a file.
+"""
+
 from heapq import heappush, heappop, heapify
 from collections import defaultdict
 from huffargs import _parser
 
 
 def encode(symb2freq):
-    """Huffman encode the given dict mapping symbols to weights"""
+    """Huffman encode the given dict mapping symbols to weights."""
     heap = [[wt, [sym, ""]] for sym, wt in symb2freq.items()]
     heapify(heap)
     while len(heap) > 1:
@@ -19,6 +28,7 @@ def encode(symb2freq):
 
 
 def main():
+    """Main call."""
     (_options, _args) = _parser.parse_args()
     if not _options.filename:
         if _args:
