@@ -1,14 +1,7 @@
-language: python
 
-sudo: false
-
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-
-install:
+before_script:
   - pip install -e .
 
-script:
+rubocop:
+  script:
   - huffman -h
