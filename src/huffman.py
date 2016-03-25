@@ -10,6 +10,7 @@ create table from a file.
 from heapq import heappush, heappop, heapify
 from collections import defaultdict
 from huffargs import _parser
+from writebits import Bitset
 
 
 class HuffmanCompactor(object):
@@ -19,15 +20,18 @@ class HuffmanCompactor(object):
         """Initialize the object."""
         super(HuffmanCompactor, self).__init__()
         self.filename = filename
-        txt = open(self.filename, "r").read()
+        self.txt = open(self.filename, "r").read()
         self.symb2freq = defaultdict(int)
-        for ch in txt:
+        for ch in self.txt:
             self.symb2freq[ch] += 1
         if not len(self.symb2freq):
             raise IndexError('Input is empty, no magic here...')
+        self.bitarray = Bitset()
+        self.bitarray.name = filename.split('/')[-1] + '.huff'
+        self.dict_table = {}
 
-    def encode(self):
-        """Huffman encode the given dict mapping symbols to weights."""
+    def build_table(self):
+        """Create the Huffman table of the given dict mapping symbols."""
         heap = [[wt, [sym, ""]] for sym, wt in self.symb2freq.items()]
         heapify(heap)
         while len(heap) > 1:
@@ -39,7 +43,22 @@ class HuffmanCompactor(object):
                 pair[1] = '1' + pair[1]
             heappush(heap, [lo[0] + hi[0]] + lo[1:] + hi[1:])
         self.table = sorted(heappop(heap)[1:], key=lambda p: (len(p[-1]), p))
+        for item in self.table:
+            self.dict_table[item[0]] = item[1]
         return self.table
+
+    def build_array(self):
+        if not self.dict_table:
+            self.build_table()
+        for ch in self.txt:
+            self.bitarray.extend(self.dict_table[ch])
+
+    def write(self):
+        if not len(self.bitarray):
+            self.build_array()
+        with open(self.filename.split('/')[-1] + '.table', "w") as f:
+            f.write(str(self.dict_table))
+        self.bitarray.to_file()
 
     def __str__(self):
         """Format the output preatty."""
@@ -62,8 +81,7 @@ def main():
             _parser.print_help()
             return
     huff = HuffmanCompactor(_options.filename)
-    huff.encode()
-    print(huff)
+    huff.write()
 
 if __name__ == '__main__':
     main()
