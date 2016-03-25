@@ -91,6 +91,8 @@ ENV/
 *.txt
 *.log
 *.bin
+*.huff
+*.table
 
 ### Linux ###
 *~
