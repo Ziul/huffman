@@ -41,6 +41,9 @@ def main():
     symb2freq = defaultdict(int)
     for ch in txt:
         symb2freq[ch] += 1
+    if not len(symb2freq):
+        print 'Input is empty, no magic here...'
+        return
     # in Python 3.1+:
     # symb2freq = collections.Counter(txt)
     huff = encode(symb2freq)
