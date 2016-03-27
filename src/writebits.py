@@ -6,9 +6,13 @@ import struct
 from bitargs import _parser
 # xxd  -b file.txt
 
+global _options
+global _args
+
 
 class Bitset(bitarray):
     memory = None
+    verbose = True
 
     def __init__(self, **arg):
         super(Bitset, self).__init__(**arg)
@@ -21,7 +25,7 @@ class Bitset(bitarray):
         # encode ASCII table
         for x in string.printable:
             self.code[x] = bitarray(bin(ord(x)).split('0b')[1].rjust(8, '0'))
-        self.checker = re.compile(ur'([^01]+)')
+        # self.checker = re.compile(ur'([^01]+)')
 
     def push(self, arg):
         if (arg[0:2] == '0b') and len(arg) > 2:
@@ -40,7 +44,8 @@ class Bitset(bitarray):
             # self.pack()
             self.fill()
         bits = self.__str__()
-        # print self.name, ">>: ", bits, '(', len(bits), ')'
+        if self.verbose:
+            print(">>: ", bits, '(', len(bits), ')')
         with open(self.name, "wb") as f:
             for i in self.chunks(bits, 8):
                 # int_value = int(i[::-1], base=2)
@@ -51,7 +56,7 @@ class Bitset(bitarray):
 
     def chunks(self, l, n):
         """Yield successive n-sized chunks from l."""
-        for i in xrange(0, len(l), n):
+        for i in range(0, len(l), n):
             yield l[i:i + n]
 
     def flush(self):
@@ -75,14 +80,15 @@ def main():
     (_options, _args) = _parser.parse_args()
     a = Bitset()
     a.name = _options.filename
+    a.verbose = _options.verbose
     if not _args:
+        _parser.print_help()
         return
     a.extend(_args[0])
 
-    print '<<: ', a, '(', len(a), ')'
+    if _options.verbose:
+        print('<<: ', a, '(', len(a), ')')
     a.to_file()
-    v = memoryview(a)
-    print v.tobytes()
 
 
 def test():
