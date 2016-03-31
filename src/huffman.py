@@ -7,6 +7,7 @@ Used to encode/decode files, as
 create table from a file.
 """
 
+import json
 from heapq import heappush, heappop, heapify
 from collections import defaultdict
 from huffargs import _parser
@@ -20,7 +21,14 @@ class HuffmanCompactor(object):
         """Initialize the object."""
         super(HuffmanCompactor, self).__init__()
         self.filename = filename
-        if mode=='bin':
+        self.mode = mode
+        self.verbose = verbose
+        self.bitarray = Bitset()
+        self.bitarray.verbose = self.verbose
+        self.dict_table = {}
+
+    def encoding(self):
+        if self.mode == 'bin':
             self.txt = open(self.filename, "rb",).read()
         else:
             self.txt = open(self.filename, "r", encoding='latin1').read()
@@ -30,13 +38,11 @@ class HuffmanCompactor(object):
         if not len(self.symb2freq):
             raise IndexError('Input is empty, no magic here...')
         self.symb2freq[ch] += 1
-        self.bitarray = Bitset()
-        self.bitarray.verbose = verbose
-        self.bitarray.name = filename.split('/')[-1] + '.huff'
-        self.dict_table = {}
+        self.bitarray.name = self.filename.split('/')[-1] + '.huff'
 
     def build_table(self):
         """Create the Huffman table of the given dict mapping symbols."""
+        self.encoding()
         heap = [[wt, [sym, ""]] for sym, wt in self.symb2freq.items()]
         heapify(heap)
         while len(heap) > 1:
@@ -62,9 +68,24 @@ class HuffmanCompactor(object):
         if not len(self.bitarray):
             self.build_array()
         with open(self.filename.split('/')[-1] + '.table', "w") as f:
-            f.write(str(self.dict_table))
+            json.dump(self.dict_table, f)
+            # f.write(str(self.dict_table))
             # f.write(str(self.symb2freq))
         self.bitarray.to_file()
+
+    def read(self):
+        if self.verbose:
+            print('Not implemented yet')
+        table_file = self.filename.split('.')[:-1]
+        table_file = '.'.join(table_file) + '.table'
+
+        with open(table_file) as json_file:
+            json_data = json.load(json_file)
+            if self.verbose:
+                print(json_data)
+
+        # '01' in a.values() # check presence
+        # list(a.keys())[list(a.values()).index(0)] # get symb
 
     def __str__(self):
         """Format the output preatty."""
@@ -87,7 +108,10 @@ def main():
             _parser.print_help()
             return
     huff = HuffmanCompactor(_options.filename, _options.verbose, _options.mode)
-    huff.write()
+    if _options.encode:
+        huff.write()
+    else:
+        huff.read()
 
 if __name__ == '__main__':
     main()
