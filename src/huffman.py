@@ -16,17 +16,22 @@ from writebits import Bitset
 class HuffmanCompactor(object):
     """docstring for Huffman Compactor."""
 
-    def __init__(self, filename):
+    def __init__(self, filename, verbose=True, mode='bin'):
         """Initialize the object."""
         super(HuffmanCompactor, self).__init__()
         self.filename = filename
-        self.txt = open(self.filename, "r").read()
+        if mode=='bin':
+            self.txt = open(self.filename, "rb",).read()
+        else:
+            self.txt = open(self.filename, "r", encoding='latin1').read()
         self.symb2freq = defaultdict(int)
         for ch in self.txt:
             self.symb2freq[ch] += 1
         if not len(self.symb2freq):
             raise IndexError('Input is empty, no magic here...')
+        self.symb2freq[ch] += 1
         self.bitarray = Bitset()
+        self.bitarray.verbose = verbose
         self.bitarray.name = filename.split('/')[-1] + '.huff'
         self.dict_table = {}
 
@@ -58,6 +63,7 @@ class HuffmanCompactor(object):
             self.build_array()
         with open(self.filename.split('/')[-1] + '.table', "w") as f:
             f.write(str(self.dict_table))
+            # f.write(str(self.symb2freq))
         self.bitarray.to_file()
 
     def __str__(self):
@@ -80,7 +86,7 @@ def main():
         else:
             _parser.print_help()
             return
-    huff = HuffmanCompactor(_options.filename)
+    huff = HuffmanCompactor(_options.filename, _options.verbose, _options.mode)
     huff.write()
 
 if __name__ == '__main__':

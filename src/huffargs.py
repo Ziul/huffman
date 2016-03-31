@@ -43,3 +43,10 @@ _parser.add_option("-e", "--encode",
                    help="encode a file. Is the default value",
                    default=True
                    )
+
+_parser.add_option("--mode",
+                   dest="mode",
+                   type='string',
+                   help="How it's gonna read the file. BIN or DATA",
+                   default='bin'
+                   )
