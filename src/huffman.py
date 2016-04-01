@@ -12,6 +12,7 @@ from heapq import heappush, heappop, heapify
 from collections import defaultdict
 from huffargs import _parser
 from writebits import Bitset
+from bitarray import bitarray
 
 
 class HuffmanCompactor(object):
@@ -37,7 +38,8 @@ class HuffmanCompactor(object):
             self.symb2freq[ch] += 1
         if not len(self.symb2freq):
             raise IndexError('Input is empty, no magic here...')
-        self.symb2freq[ch] += 1
+        if 256 not in self.symb2freq.keys():
+            self.symb2freq[256] = 0
         self.bitarray.name = self.filename.split('/')[-1] + '.huff'
 
     def build_table(self):
@@ -71,27 +73,55 @@ class HuffmanCompactor(object):
             json.dump(self.dict_table, f)
             # f.write(str(self.dict_table))
             # f.write(str(self.symb2freq))
+        self.bitarray.extend(self.dict_table[256])
         self.bitarray.to_file()
 
     def read(self):
-        if self.verbose:
-            print('Not implemented yet')
         table_file = self.filename.split('.')[:-1]
         table_file = '.'.join(table_file) + '.table'
 
         with open(table_file) as json_file:
-            json_data = json.load(json_file)
-            if self.verbose:
-                print(json_data)
+            self.dict_table = json.load(json_file)
+            # json_file = json.load(json_file)
+            # for key in json_file:
+            #     self.dict_table[chr(int(key))] = bitarray(json_file[key])
+
+        with open(table_file.replace('.table', '.huff'), 'rb') as file:
+            self.bitarray.fromfile(file)
+            self.bitarray = self.bitarray.to01()
+
+        decoded = ''
+        data = ''
+        # data = self.bitarray.decode(self.dict_table)
+        # return ''.join(data)
+
+        while decoded != '256':
+            for i in range(1, len(self.dict_table['256']) + 1):
+                sym = self.bitarray[:i]
+                if sym in self.dict_table.values():
+                    decoded = list(self.dict_table.keys()
+                                   )[list(self.dict_table.values()).index(sym)]
+                    if decoded == '256':
+                        return data
+                    data += chr(int(decoded))
+                    self.bitarray = self.bitarray[i:]
 
         # '01' in a.values() # check presence
         # list(a.keys())[list(a.values()).index(0)] # get symb
+
+    def decode(self):
+        data = self.read()
+        filename = self.filename.split('.')[:-1]
+        filename = '.'.join(filename)
+        with open('decoded_' + filename, 'w') as file:
+            file.write(data)
+        if self.verbose:
+            print(data)
 
     def __str__(self):
         """Format the output preatty."""
         out = "Symbol       Weight\tHuffman Code\n"
         for p in self.table:
-            # print "%s\t\t%s\t%s" % ([p[0]], symb2freq[p[0]], p[1])
             out += '\r{}'.format([p[0]]).ljust(13)
             out += '{}\t'.format(self.symb2freq[p[0]]).rjust(5)
             out += '{}\n'.format(p[1]).ljust(20)
@@ -111,7 +141,7 @@ def main():
     if _options.encode:
         huff.write()
     else:
-        huff.read()
+        huff.decode()
 
 if __name__ == '__main__':
     main()

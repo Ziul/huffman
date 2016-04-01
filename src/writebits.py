@@ -41,11 +41,12 @@ class Bitset(bitarray):
 
     def to_file(self):
         if (len(self) % 8):
-            # self.pack()
+            if self.verbose:
+                print('flushed with %d' % (len(self) % 8))
             self.fill()
         bits = self.__str__()
-        if self.verbose:
-            print(">>: ", bits, '(', len(bits), ')')
+        # if self.verbose:
+        #     print(">>: ", bits, '(', len(bits), ')')
         with open(self.name, "wb") as f:
             for i in self.chunks(bits, 8):
                 # int_value = int(i[::-1], base=2)
