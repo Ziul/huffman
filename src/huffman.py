@@ -34,12 +34,12 @@ class HuffmanCompactor(object):
         else:
             self.txt = open(self.filename, "r", encoding='latin1').read()
         self.symb2freq = defaultdict(int)
+        self.symb2freq[256] = 0
         for ch in self.txt:
             self.symb2freq[ch] += 1
         if not len(self.symb2freq):
             raise IndexError('Input is empty, no magic here...')
-        if 256 not in self.symb2freq.keys():
-            self.symb2freq[256] = 0
+        # if 256 not in self.symb2freq.keys():
         self.bitarray.name = self.filename.split('/')[-1] + '.huff'
 
     def build_table(self):
@@ -116,7 +116,9 @@ class HuffmanCompactor(object):
         with open('decoded_' + filename, 'w') as file:
             file.write(data)
         if self.verbose:
-            print(data)
+            import os
+            os.system('diff {} {}'.format(filename, 'decoded_' + filename))
+            # print(data)
 
     def __str__(self):
         """Format the output preatty."""
