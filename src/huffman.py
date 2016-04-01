@@ -29,17 +29,14 @@ class HuffmanCompactor(object):
         self.dict_table = {}
 
     def encoding(self):
-        if self.mode == 'bin':
-            self.txt = open(self.filename, "rb",).read()
-        else:
-            self.txt = open(self.filename, "r", encoding='latin1').read()
+        self.txt = open(self.filename, "rb",).read()
+
         self.symb2freq = defaultdict(int)
         self.symb2freq[256] = 0
         for ch in self.txt:
             self.symb2freq[ch] += 1
         if not len(self.symb2freq):
             raise IndexError('Input is empty, no magic here...')
-        # if 256 not in self.symb2freq.keys():
         self.bitarray.name = self.filename.split('/')[-1] + '.huff'
 
     def build_table(self):
@@ -71,8 +68,6 @@ class HuffmanCompactor(object):
             self.build_array()
         with open(self.filename.split('/')[-1] + '.table', "w") as f:
             json.dump(self.dict_table, f)
-            # f.write(str(self.dict_table))
-            # f.write(str(self.symb2freq))
         self.bitarray.extend(self.dict_table[256])
         self.bitarray.to_file()
 
@@ -82,9 +77,6 @@ class HuffmanCompactor(object):
 
         with open(table_file) as json_file:
             self.dict_table = json.load(json_file)
-            # json_file = json.load(json_file)
-            # for key in json_file:
-            #     self.dict_table[chr(int(key))] = bitarray(json_file[key])
 
         with open(table_file.replace('.table', '.huff'), 'rb') as file:
             self.bitarray.fromfile(file)
@@ -92,8 +84,6 @@ class HuffmanCompactor(object):
 
         decoded = ''
         data = ''
-        # data = self.bitarray.decode(self.dict_table)
-        # return ''.join(data)
 
         while decoded != '256':
             for i in range(1, len(self.dict_table['256']) + 1):
@@ -118,7 +108,6 @@ class HuffmanCompactor(object):
         if self.verbose:
             import os
             os.system('diff {} {}'.format(filename, 'decoded_' + filename))
-            # print(data)
 
     def __str__(self):
         """Format the output preatty."""

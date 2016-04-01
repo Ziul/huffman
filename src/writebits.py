@@ -42,7 +42,7 @@ class Bitset(bitarray):
     def to_file(self):
         if (len(self) % 8):
             if self.verbose:
-                print('flushed with %d' % (len(self) % 8))
+                print('flushed with %d' % (8 - len(self) % 8))
             self.fill()
         bits = self.__str__()
         # if self.verbose:
