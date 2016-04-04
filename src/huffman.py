@@ -8,11 +8,14 @@ create table from a file.
 """
 
 import json
+import struct
 from heapq import heappush, heappop, heapify
 from collections import defaultdict
 from huffargs import _parser
 from writebits import Bitset
 from bitarray import bitarray
+from time import sleep
+from random import choice
 
 
 class HuffmanCompactor(object):
@@ -84,27 +87,43 @@ class HuffmanCompactor(object):
 
         decoded = ''
         data = ''
+        count = len(self.bitarray)
 
         while decoded != '256':
-            for i in range(1, len(self.dict_table['256']) + 1):
+            size = len(self.bitarray)
+            if self.verbose:
+                print('\r%3.2f' % (100 * (1 - (size / count))), end='')
+            # need to be paralelized
+            for i in range(0, len(self.dict_table['256']) + 1):
                 sym = self.bitarray[:i]
-                if sym in self.dict_table.values():
+                try:
                     decoded = list(self.dict_table.keys()
                                    )[list(self.dict_table.values()).index(sym)]
                     if decoded == '256':
+                        if self.verbose:
+                            print('\r100.00')
                         return data
                     data += chr(int(decoded))
                     self.bitarray = self.bitarray[i:]
+                    break
+                except:
+                    pass
 
         # '01' in a.values() # check presence
         # list(a.keys())[list(a.values()).index(0)] # get symb
 
     def decode(self):
         data = self.read()
+        array = Bitset()
+        for ch in data:
+            array.push(ch)
         filename = self.filename.split('.')[:-1]
         filename = '.'.join(filename)
-        with open('decoded_' + filename, 'w') as file:
-            file.write(data)
+        with open('decoded_' + filename, 'wb') as file:
+            for i in array.chunks(str(array), 8):
+                int_value = int(i, base=2)
+                bin_array = struct.pack('B', int_value)
+                file.write(bin_array)
         if self.verbose:
             import os
             os.system('diff {} {}'.format(filename, 'decoded_' + filename))

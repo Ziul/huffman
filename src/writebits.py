@@ -23,8 +23,8 @@ class Bitset(bitarray):
             self.name = 'file.bin'
 
         # encode ASCII table
-        for x in string.printable:
-            self.code[x] = bitarray(bin(ord(x)).split('0b')[1].rjust(8, '0'))
+        for x in range(0, 256):
+            self.code[chr(x)] = bitarray(bin(x).split('0b')[1].rjust(8, '0'))
         # self.checker = re.compile(ur'([^01]+)')
 
     def push(self, arg):
