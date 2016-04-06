@@ -1,8 +1,0 @@
-
-before_script:
-  - sudo apt-get install python-pip
-  - pip install -e .
-
-rubocop:
-  script:
-  - huffman -h
