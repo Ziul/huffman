@@ -20,7 +20,7 @@ setup(
     version='0.0.8',
     author='Luiz Oliveira',
     author_email='ziuloliveira@gmail.com',
-    url='https://gitlab.com/Ziul/huffman/',
+    url='https://github.com/Ziul/huffman/',
     entry_points={
         'console_scripts': [
             'huffman = huffman:main',
